@@ -1,0 +1,565 @@
+
+<%@page import="com.mongodb.DBObject"%>
+<%@page import="com.mongodb.DBCursor"%>
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<%@ page import="com.mongodb.MongoClient"%>
+<%@ page import="com.mongodb.DB"%>
+<%@ page import="com.mongodb.DBCollection"%>
+<%@ page import="Dbwrk.dconnect"%>
+<%@ page import="com.mongodb.BasicDBObject"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>STUDENT DETAILS</title>
+<link href="CSS/STYLES.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="Form.js"></script>
+<%!String name = "", bday = "", gender = "", bgroup = "", relegion = "", nation = "";
+	String lang, lang1 = "", lang2 = "", lang3 = "", lang4 = "", grade = "", father = "", occupation = "", addr = "",
+			email = "", contact = "", sid = "", age = "", zipcode = "", income = "";
+
+	String male, female, hindu, christian, muslim, other, tamil = "", english = "", hindi = "", otherl = "";
+	String aplus = "", aminus = "", bplus = "", bminus = "", oplus = "", ominus = "", a1plus = "", abplus = "",
+			abminus = "";
+	int id;%>
+</head>
+
+<body>
+	<div id="dialogoverlay"></div>
+	<div id="dialogbox">
+		<div>
+			<div id="dialogboxhead"></div>
+			<div id="dialogboxbody"></div>
+			<div id="dialogboxfoot"></div>
+		</div>
+	</div>
+	<%
+		dconnect test = dconnect.createInstance();
+		DBCollection coll = test.getCollection("Student");
+
+		if (session.getAttribute("msg") != null) 
+		{
+			if (session.getAttribute("msg") == "INSERT") 
+			{
+				session.setAttribute("msg", "");
+				%><script>
+					Alert.render('Saved Sucessfully');
+				</script>
+				<%
+			}
+			else if (session.getAttribute("msg") == "DELETE") 
+			{
+				session.setAttribute("msg", "");
+				%><script>
+					Alert.render('Deleted Sucessfully');
+				</script>
+				<%
+			} 
+			else if (session.getAttribute("msg") == "NULLID") 
+			{
+				session.setAttribute("msg", "");
+				%><script>
+					Alert.render('Please fill the Id value');
+				</script>
+				<%
+			} 
+			else if (session.getAttribute("msg") == "CHECKERR") 
+			{
+				session.setAttribute("msg", "");
+				%><script>
+					Alert.render('Please Check the Language!');
+				</script>
+				<%
+			} 
+			else if (session.getAttribute("msg") == "ERR") 
+			{
+				session.setAttribute("msg", "");
+				%><script>
+					Alert.render('The Email or Contact already exist!');
+				</script>
+				<%
+			}
+		}
+
+		if (request.getParameter("SEARCH") != null || request.getParameter("UPDATE") != null) 
+		{
+			if (request.getParameter("SEARCH") != null) 
+			{
+				try 
+				{
+					id = Integer.parseInt(request.getParameter("ID"));
+				} 
+				catch (Exception e) 
+				{
+					%><script>
+						Alert.render('Please fill the Id Value');
+					</script>
+					<%
+				}
+			} 
+			else if (request.getParameter("UPDATE") != null) 
+			{
+				id = Integer.parseInt(request.getParameter("UPDATE"));
+			}
+			
+			BasicDBObject search = new BasicDBObject();
+			search.put("ID", id);
+
+			DBCursor cursor = coll.find(search);
+
+			if (cursor != null)
+			{
+				while (cursor.hasNext()) 
+				{
+					DBObject cur = cursor.next();
+					sid = cur.get("ID").toString();
+					name = cur.get("NAME").toString();
+					bday = cur.get("BIRTHDAY").toString();
+					age = cur.get("AGE").toString();
+					gender = cur.get("GENDER").toString();
+					bgroup = cur.get("BLOOD GROUP").toString();
+					relegion = cur.get("RELEGION").toString();
+					nation = cur.get("NATIONALITY").toString();
+					grade = cur.get("QUALIFICATION").toString();
+					father = cur.get("FATHER'S NAME").toString();
+					occupation = cur.get("OCCUPATION").toString();
+					income = cur.get("ANNUAL INCOME").toString();
+
+					DBObject lang = (BasicDBObject) cur.get("LANGUAGE");
+
+					if (lang.get("LANG_1") != null)
+						lang1 = lang.get("LANG_1").toString();
+					else
+						lang1 = "null";
+					if (lang.get("LANG_2") != null)
+						lang2 = lang.get("LANG_2").toString();
+					else
+						lang2 = "null";
+					if (lang.get("LANG_3") != null)
+						lang3 = lang.get("LANG_3").toString();
+					else
+						lang3 = "null";
+					if (lang.get("LANG_4") != null)
+						lang4 = lang.get("LANG_4").toString();
+					else
+						lang4 = "null";
+
+					DBObject contacts = (BasicDBObject) cur.get("CONTACT_DETAILS");
+					addr = contacts.get("ADDRESS").toString();
+					zipcode = contacts.get("ZIPCODE").toString();
+					contact = contacts.get("CONTACT").toString();
+					email = contacts.get("EMAIL").toString();
+				}
+			} 
+			
+			else if (cursor == null) 
+			{
+				out.println("<script> alert('No result fount');  </script>");
+			}
+
+			if (gender.equalsIgnoreCase("Male")) 
+			{
+				male = "checked";
+				female = "";
+			} 
+			else if (gender.equalsIgnoreCase("Female")) 
+			{
+				male = "";
+				female = "checked";
+			}
+
+			if (relegion.equalsIgnoreCase("Hindu"))
+			{
+				hindu = "checked";
+				muslim = "";
+				christian = "";
+				other = "";
+			} 
+			else if (relegion.equalsIgnoreCase("Muslim")) 
+			{
+				hindu = "";
+				muslim = "checked";
+				christian = "";
+				other = "";
+			}
+			else if (relegion.equalsIgnoreCase("Christian")) 
+			{
+				hindu = "";
+				muslim = "";
+				christian = "checked";
+				other = "";
+			} 
+			else if (relegion.equalsIgnoreCase("Other")) 
+			{
+				hindu = "";
+				muslim = "";
+				christian = "";
+				other = "checked";
+			}
+
+			if (bgroup.equalsIgnoreCase("A+")) 
+			{
+				aplus = "selected";
+				aminus = "";
+				bplus = "";
+				bminus = "";
+				oplus = "";
+				ominus = "";
+				a1plus = "";
+				abplus = "";
+				abminus = "";
+			} 
+			else if (bgroup.equalsIgnoreCase("A-")) 
+			{
+				aplus = "";
+				aminus = "selected";
+				bplus = "";
+				bminus = "";
+				oplus = "";
+				ominus = "";
+				a1plus = "";
+				abplus = "";
+				abminus = "";
+			} 
+			else if (bgroup.equalsIgnoreCase("B+")) 
+			{
+				aplus = "";
+				aminus = "";
+				bplus = "selected";
+				bminus = "";
+				oplus = "";
+				ominus = "";
+				a1plus = "";
+				abplus = "";
+				abminus = "";
+			} 
+			else if (bgroup.equalsIgnoreCase("B-")) 
+			{
+				aplus = "";
+				aminus = "";
+				bplus = "";
+				bminus = "selected";
+				oplus = "";
+				ominus = "";
+				a1plus = "";
+				abplus = "";
+				abminus = "";
+			} 
+			else if (bgroup.equalsIgnoreCase("O+")) 
+			{
+				aplus = "";
+				aminus = "";
+				bplus = "";
+				bminus = "";
+				oplus = "selected";
+				ominus = "";
+				a1plus = "";
+				abplus = "";
+				abminus = "";
+			} 
+			else if (bgroup.equalsIgnoreCase("O-")) 
+			{
+				aplus = "";
+				aminus = "";
+				bplus = "";
+				bminus = "";
+				oplus = "";
+				ominus = "selected";
+				a1plus = "";
+				abplus = "";
+				abminus = "";
+			} 
+			else if (bgroup.equalsIgnoreCase("A1+")) 
+			{
+				aplus = "";
+				aminus = "";
+				bplus = "";
+				bminus = "";
+				oplus = "";
+				ominus = "";
+				a1plus = "selected";
+				abplus = "";
+				abminus = "";
+			} 
+			else if (bgroup.equalsIgnoreCase("AB+")) 
+			{
+				aplus = "";
+				aminus = "";
+				bplus = "";
+				bminus = "";
+				oplus = "";
+				ominus = "";
+				a1plus = "";
+				abplus = "selected";
+				abminus = "";
+			} 
+			else if (bgroup.equalsIgnoreCase("AB-")) 
+			{
+				aplus = "";
+				aminus = "";
+				bplus = "";
+				bminus = "";
+				oplus = "";
+				ominus = "";
+				a1plus = "";
+				abplus = "";
+				abminus = "selected";
+			}
+
+			if (lang1 == "null")
+				tamil = "";
+			else
+				tamil = "checked";
+			if (lang2 == "null")
+				english = "";
+			else
+				english = "checked";
+			if (lang3 == "null")
+				hindi = "";
+			else
+				hindi = "checked";
+			if (lang4 == "null")
+				otherl = "";
+			else
+				otherl = "checked";
+		}
+	%>
+	<div>
+		<Header>STUDENT FORM</Header>
+		<form action="curd" method="post" name="STUDENT" target="_self"
+			id="STUDENT">
+			<div class="container">
+
+				<div class="innerContent">
+					<div class="HEAD">&nbsp;</div>
+					<table height="658" border="0">
+						<tr>
+							<td height="15" colspan="3">&nbsp;</td>
+						</tr>
+						<tr>
+							<td><h4>Id</h4></td>
+							<td><h4>:</h4></td>
+							<td><h4>
+									<input name="ID" type="number" required="required" class="CONTACT shadow" id="ID" value="<%=sid%>" /> <br>
+								</h4></td>
+						</tr>
+						<tr>
+							<td><h4>Name</h4></td>
+							<td><h4>:</h4></td>
+							<td><h4>
+									<input name="SNAME" type="text" required="required" class="FIELD shadow" id="SNAME" value="<%=name%>" /> <br>
+								</h4></td>
+						</tr>
+						<tr>
+							<td colspan="3">
+								<h4>
+									<div style="width: 100%">
+										Birthday
+										&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+										<input name="BDAY" type="Date" required="required" class="CONTACT shadow" id="BDAY" value="<%=bday%>"
+											onchange="Age()" max="1999-12-31" placeholder="mm/dd/yyy" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+										Age &nbsp;&nbsp;&nbsp;&nbsp;: &nbsp;&nbsp;<input name="AGE"
+											type="number" required="required" class="CONTACT shadow"
+											id="AGE" min="18" value="<%=age%>" />
+									</div>
+								</h4>
+							</td>
+						</tr>
+						<tr>
+							<td><h4>Gender</h4></td>
+							<td><h4>:</h4></td>
+							<td><input id="GENDER_1" type="radio" name="GENDER"
+								value="Male" <%=male%>> <label for="GENDER_1"
+								class="point"><span><span></span></span>Male</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+								<input id="GENDER_2" type="radio" name="GENDER" value="Female"
+								<%=female%>> <label for="GENDER_2" class="point"><span><span></span></span>Female</label>
+							</td>
+						</tr>
+						<tr>
+							<td><h4>Blood Group</h4></td>
+							<td><h4>:</h4></td>
+							<td><h4>
+									<select name="BGROUP" required="required" id="BGROUP"
+										class="CONTACT point shadow">
+										<option value=""></option>
+										<option value="A+" <%=aplus%>>A +ve</option>
+										<option value="A-" <%=aminus%>>A -ve</option>
+										<option value="B+" <%=bplus%>>B +ve</option>
+										<option value="B-" <%=bminus%>>B -ve</option>
+										<option value="O+" <%=oplus%>>O +ve</option>
+										<option value="O-" <%=ominus%>>O -ve</option>
+										<option value="A1+" <%=a1plus%>>A1 +ve</option>
+										<option value="AB+" <%=abplus%>>AB +ve</option>
+										<option value="AB-" <%=abminus%>>AB -ve</option>
+									</select>
+								</h4></td>
+						</tr>
+						<tr>
+							<td><h4>Relegion</h4></td>
+							<td><h4>:</h4></td>
+							<td><input id="RELEGION_1" type="radio" name="RELEGION"
+								value="Hindu" <%=hindu%>> <label for="RELEGION_1"
+								class="point"><span><span></span></span>Hindu</label> <input
+								id="RELEGION_2" type="radio" name="RELEGION" value="Christian"
+								<%=christian%>> <label for="RELEGION_2" class="point"><span><span></span></span>Christian</label>
+								<input id="RELEGION_3" type="radio" name="RELEGION"
+								value="Muslim" <%=muslim%>> <label for="RELEGION_3"
+								class="point"><span><span></span></span>Muslim</label> <input
+								id="RELEGION_4" type="radio" name="RELEGION" value="Other"
+								<%=other%>> <label for="RELEGION_4" class="point"><span><span></span></span>Other</label>
+							</td>
+						</tr>
+						<tr>
+							<td><h4>Nationality</h4></td>
+							<td><h4>:</h4></td>
+							<td><h4>
+									<input name="NATIONALITY" type="text" required="required"
+										class="CONTACT shadow" value="<%=nation%>" id="NATIONALITY" />
+									<br>
+								</h4></td>
+						</tr>
+						<tr>
+							<td><h4>Language</h4></td>
+							<td><h4>:</h4></td>
+							<td><input id="TAMIL" type="checkbox" name="TAMIL"
+								value="Tamil" <%=tamil%>> <label for="TAMIL"
+								class="point"><span></span>Tamil</label> <input id="ENGLISH"
+								type="checkbox" name="ENGLISH" value="English" <%=english%>>
+								<label for="ENGLISH" class="point"><span></span>English</label>
+								<input id="HINDI" type="checkbox" name="HINDI" value="Hindi"
+								<%=hindi%>> <label for="HINDI" class="point"><span></span>Hindi</label>
+								<input id="OTHERL" type="checkbox" name="OTHERL" value="Other"
+								<%=otherl%>> <label for="OTHERL" class="point"><span></span>Other</label>
+							</td>
+						</tr>
+						<tr>
+							<td><h4>Qualification</h4></td>
+							<td><h4>:</h4></td>
+							<td><h4>
+									<input name="QUALIFICATION" type="text" required="required"
+										value="<%=grade%>" class="CONTACT shadow" id="QUALIFICATION" />
+									<br>
+								</h4></td>
+						</tr>
+
+
+					</table>
+				</div>
+
+				<div class="innerContent">
+					<div class="HEAD">&nbsp;</div>
+					<table height="698" border="0">
+						<tr>
+							<td height="15" colspan="3">&nbsp;</td>
+						</tr>
+						<tr>
+							<td width="180px"><h4>Father's Name</h4></td>
+							<td><h4>:</h4></td>
+							<td style="text-align: left"><h4>
+									<input name="FNAME" type="text" required="required"
+										value="<%=father%>" class="FIELD shadow" id="FNAME" /> <br>
+								</h4></td>
+						</tr>
+						<tr>
+							<td><h4>Occupation</h4></td>
+							<td><h4>:</h4></td>
+							<td style="text-align: left"><h4>
+									<input name="OCCUPATION" type="text" required="required"
+										value="<%=occupation%>" class="CONTACT shadow" id="OCCUPATION" />
+									<br>
+								</h4></td>
+						</tr>
+						<tr>
+							<td><h4>Annual Income</h4></td>
+							<td><h4>:</h4></td>
+							<td style="text-align: left"><h4>
+									<input name="AINCOME" type="number" required="required"
+										value="<%=income%>" class="CONTACT shadow" id="AINCOME" /> <br>
+								</h4></td>
+						</tr>
+						<tr>
+							<td><h4>Address</h4></td>
+							<td><h4>:</h4></td>
+							<td style="text-align: left"><h4>
+									<div id="locationField">
+										<input id="autocomplete" placeholder="Enter your address"
+											onFocus="geolocate()" class="FIELD shadow" type="text"></input>
+										<textarea name="ADDRESS" cols="45" rows="5"
+											required="required" class="TEXTAREA shadow" id="ADDRESS"><%=addr%></textarea>
+									</div>
+									<br>
+								</h4></td>
+						</tr>
+						<tr>
+							<td><h4>Zip Code</h4></td>
+							<td><h4>:</h4></td>
+							<td style="text-align: left"><h4>
+									<input name="ZCODE" type="number" required="required"
+										value="<%=zipcode%>" class="CONTACT shadow" id="postal_code" />
+									<br>
+								</h4></td>
+						</tr>
+						<tr>
+							<td><h4>Contact Number</h4></td>
+							<td><h4>:</h4></td>
+							<td style="text-align: left"><h4>
+									<input name="CNUMBER" type="number" required="required"
+										class="CONTACT shadow" id="CNUMBER" max="9999999999"
+										min="1000000" value="<%=contact%>" /> <br>
+								</h4></td>
+						</tr>
+						<tr>
+							<td><h4>Email Address</h4></td>
+							<td><h4>:</h4></td>
+							<td style="text-align: left"><h4>
+									<input name="EADDRESS" type="email" required="required"
+										value="<%=email%>" class="FIELD shadow" id="EADDRESS" /> <br>
+								</h4></td>
+						</tr>
+						<tr>
+							<td colspan="3" align="center"><table width="100%"
+									height="54" border="0">
+									<tr>
+										<td height="50"><div align="center">
+												<input name="Button" type="submit"
+													class="btn blue btn-effect shadow" id="Button"
+													form="STUDENT" formaction="curd" formmethod="post"
+													value="SAVE" />
+											</div></td>
+										<td><div align="center">
+												<input name="SEARCH" type="submit" formnovalidate
+													class="btn blue btn-effect shadow" id="SEARCH"
+													form="STUDENT" formaction="Students.jsp" formmethod="post"
+													value="SEARCH" />
+											</div></td>
+										<td><div align="center">
+												<input name="CANCEL" type="button"
+													class="btn blue btn-effect shadow" id="CALCEL"
+													formnovalidate form="STUDENT" value="CANCLE"
+													onclick="allClear();" />
+											</div></td>
+										<td><div align="center" id="END">
+												<input type="hidden" value="DELETE" name="Button"> <input
+													name="Button" type="button" formnovalidate
+													class="btn blue btn-effect shadow" id="Button"
+													onclick="Confirm.check('Are you Sure to delete ?')"
+													value="DELETE" />
+											</div></td>
+									</tr>
+								</table>
+								<p>
+									<input name="Button" type="submit" formnovalidate
+										class="btn blue btn-effect" id="Button" form="STUDENT"
+										formaction="Viewall.jsp" formmethod="post" value="VIEW ALL" />
+								</p>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</form>
+	</div>
+	<script type="text/javascript" src="GeoAddress.js"></script>
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCaUAPIFUziVxsjaSlcmaaWJbQELTK7HUo&libraries=places&callback=initAutocomplete" async defer></script>
+</body>
+</html>
